@@ -52,10 +52,12 @@ Commands:
   (message "Expanding...")
   (let ((cl--compiling-file full)
         (byte-compile-macro-environment nil))
-    (insert (prin1-to-string
-             (if full
+    (let ((print-escape-newlines pp-escape-newlines)
+          (print-quoted t))
+      (prin1 (if full
                  (macroexpand-all form)
-               (macroexpand form))))
+               (macroexpand form))
+             (current-buffer)))
     (message "Formatting...")
     (prog1 (pp-buffer)
       (message ""))))
