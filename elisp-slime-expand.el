@@ -81,18 +81,21 @@ Commands:
           (elisp-macroexpansion-minor-mode 1)
           (setq eval-macroexpand-expression `(,full ,expression)))))))
 
+;;;###autoload
 (defun macroexpand-all-at-point ()
   "Expand the all macros in the current sexp at point and display
 it in a separate buffer."
   (interactive)
   (elisp-macroexpand-at-point-1 t))
 
+;;;###autoload
 (defun macroexpand-at-point ()
   "Expand the current sexp at point and display it in a separate
 buffer."
   (interactive)
   (elisp-macroexpand-at-point-1))
 
+;;;###autoload
 (defun elisp-slime-expand-inline-at-point ()
   "Expand the current sexp if it's a macro and pretty print it."
   (interactive)
@@ -108,6 +111,7 @@ buffer."
       (goto-char apoint))
     (setq buffer-read-only t)))
 
+;;;###autoload
 (defun elisp-slime-expand-macro-again ()
   "Refresh the display of the current macro."
   (interactive)
