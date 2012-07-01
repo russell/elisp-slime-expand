@@ -61,6 +61,12 @@
         (switch-to-buffer macroexpand-buffer)
         (when (get-buffer macroexpand-buffer)
           (insert (macroexpand-to-string expression expand-func))
+          (goto-char (point-max))
+          ;; Sometimes prettyprinting doesn't work because of line
+          ;; breaks function documentation :( this solution isn't the
+          ;; best because string formatting isn't preserved.
+          ;; (while (not (eq (line-number-at-pos) 1))
+          ;;   (join-line))
           (set-buffer macroexpand-buffer)
           (emacs-lisp-mode)
           (goto-char (point-min))
