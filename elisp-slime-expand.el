@@ -48,60 +48,44 @@ Commands:
   "Specifies the last macroexpansion performed. This variable
   specifies both what was expanded and how.")
 
-(defun macroexpand-to-string (sexp &optional expand-func)
-  "Expand an `sexp' using the `expand-func' function and return
-it as a string."
-  (replace-regexp-in-string
-   "\\`[ \t\n]*" ""
-   (replace-regexp-in-string
-    "[ \t\n]*\\'" ""
-    (with-output-to-string
-      (with-temp-buffer
-        (insert "(")
-        (insert (if expand-func (symbol-name expand-func) "cl-macroexpand"))
-        (insert " (quote ")
-        (insert sexp)
-        (insert "))")
-        (eval-buffer nil standard-output))))))
+(defun elisp-macro-prettyexpand (form &optional full)
+  (message "Expanding...")
+  (let ((cl--compiling-file full)
+        (byte-compile-macro-environment nil))
+    (insert (prin1-to-string
+             (if full
+                 (macroexpand-all form)
+               (macroexpand form))))
+    (message "Formatting...")
+    (prog1 (pp-buffer)
+      (message ""))))
 
-(defun elisp-macroexpand-at-point-1 (&optional expand-func)
+(defun elisp-macroexpand-at-point-1 (&optional full)
   (save-excursion
     (let ((cpoint (point))
           (apoint (if (equal (char-to-string (char-after)) "(")
                       (point) (search-backward "(" nil t)))
-          (epoint (progn (forward-sexp) (point)))
-          (expand-func (if expand-func
-                           expand-func
-                         'cl-macroexpand)))
+          (epoint (progn (forward-sexp) (point))))
       (goto-char cpoint)
-      (let ((expression (buffer-substring-no-properties apoint epoint)))
+      (let ((expression (read
+                         (buffer-substring-no-properties apoint epoint))))
         (when (get-buffer macroexpand-buffer)
           (kill-buffer macroexpand-buffer))
         (switch-to-buffer macroexpand-buffer)
         (when (get-buffer macroexpand-buffer)
-          (insert (macroexpand-to-string expression expand-func))
-          (goto-char (point-max))
-          ;; Sometimes prettyprinting doesn't work because of line
-          ;; breaks function documentation :( this solution isn't the
-          ;; best because string formatting isn't preserved.
-          ;; (while (not (eq (line-number-at-pos) 1))
-          ;;   (join-line))
           (set-buffer macroexpand-buffer)
+          (elisp-macro-prettyexpand expression full)
           (emacs-lisp-mode)
-          (goto-char (point-min))
-          (delete-region (point) (1- (search-forward "(" nil t)))
-          (goto-char (point-min))
-          (cl--do-prettyprint)
           (setq buffer-read-only t)
           (goto-char (point-min))
           (elisp-macroexpansion-minor-mode 1)
-          (setq eval-macroexpand-expression `(,expand-func ,expression)))))))
+          (setq eval-macroexpand-expression `(,full ,expression)))))))
 
 (defun macroexpand-all-at-point ()
   "Expand the all macros in the current sexp at point and display
 it in a separate buffer."
   (interactive)
-  (elisp-macroexpand-at-point-1 'macroexpand-all))
+  (elisp-macroexpand-at-point-1 t))
 
 (defun macroexpand-at-point ()
   "Expand the current sexp at point and display it in a separate
@@ -117,13 +101,11 @@ buffer."
         (apoint (if (equal (char-to-string (char-after)) "(")
                     (point) (search-backward "(" nil t)))
         (epoint (progn (forward-sexp) (point))))
-    (let ((expression (buffer-substring-no-properties apoint epoint)))
+    (let ((expression (read (buffer-substring-no-properties apoint epoint))))
       (delete-region apoint epoint)
       (goto-char apoint)
-      (insert (macroexpand-to-string expression))
+      (elisp-macro-prettyexpand expression)
       (goto-char apoint))
-    (cl--do-prettyprint)
-    (goto-char apoint)
     (setq buffer-read-only t)))
 
 (defun elisp-slime-expand-macro-again ()
@@ -133,12 +115,10 @@ buffer."
     (when (get-buffer macroexpand-buffer)
       (setq buffer-read-only nil)
       (delete-region (point-min) (point-max))
-      (insert (macroexpand-to-string (cadr eval-macroexpand-expression)
-                                     (car eval-macroexpand-expression)))
+      (cl-prettyexpand (cadr eval-macroexpand-expression)
+                       (car eval-macroexpand-expression))
       (goto-char (point-min))
       (delete-region (point) (1- (search-forward "(" nil t)))
-      (goto-char (point-min))
-      (cl--do-prettyprint)
       (setq buffer-read-only t)
       (goto-char cpoint))))
 
