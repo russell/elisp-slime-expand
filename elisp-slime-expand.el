@@ -155,9 +155,7 @@ Commands:
 \\{elisp-slime-expand-minor-mode-map}"
   nil
   " Macroexpand"
-  '(("g" . eslisp-slime-expand-macro-again)
-    ("\C-c\C-m" . eslisp-slime-expand-inline-at-point)
-    ("q" . bury-buffer))
+  elisp-slime-expand-minor-mode-map
   (make-variable-buffer-local 'eval-macroexpand-expression))
 
 (provide 'elisp-slime-expand)
