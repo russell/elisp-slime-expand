@@ -49,6 +49,8 @@ Commands:
   specifies both what was expanded and how.")
 
 (defun macroexpand-to-string (sexp &optional expand-func)
+  "Expand an `sexp' using the `expand-func' function and return
+it as a string."
   (replace-regexp-in-string
    "\\`[ \t\n]*" ""
    (replace-regexp-in-string
