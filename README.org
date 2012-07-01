@@ -14,8 +14,3 @@
    (require 'elisp-slime-expand)
    (add-hook 'emacs-lisp-mode-hook (lambda () (elisp-slime-expand-mode t)))
    #+END_SRC
-** Known Issues
-
-   There is currently one known issue where pretty printing fails due
-   to formatting of strings in the function definition.  This should
-   probably be fixed in the cl-extras package instead of in this module.
