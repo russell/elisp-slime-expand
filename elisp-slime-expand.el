@@ -115,10 +115,8 @@ buffer."
     (when (get-buffer macroexpand-buffer)
       (setq buffer-read-only nil)
       (delete-region (point-min) (point-max))
-      (cl-prettyexpand (cadr eval-macroexpand-expression)
-                       (car eval-macroexpand-expression))
-      (goto-char (point-min))
-      (delete-region (point) (1- (search-forward "(" nil t)))
+      (elisp-macro-prettyexpand (cadr eval-macroexpand-expression)
+                                (car eval-macroexpand-expression))
       (setq buffer-read-only t)
       (goto-char cpoint))))
 
