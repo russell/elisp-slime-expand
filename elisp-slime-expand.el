@@ -20,9 +20,26 @@
 
 ;;; Commentary:
 
-;; This mode provides a similar exprience to the SLIME macroexpand functions.
+;; This mode provides a similar exprience to the SLIME macroexpand
+;; functions in `emacs-lisp-mode'.
 
 ;;; Code:
+
+(defvar elisp-slime-expand-mode-map (make-sparse-keymap))
+
+(define-key elisp-slime-expand-mode-map "\C-c\C-m"
+  'macroexpand-at-point)
+
+(define-key elisp-slime-expand-mode-map "\C-c\M-m"
+  'macroexpand-all-at-point)
+
+
+(define-minor-mode elisp-slime-expand-mode
+  "Enable SLIME like macroexpand.
+
+Commands:
+\\{elisp-slime-expand-mode-map}"
+  nil " SliExp" elisp-slime-expand-mode-map)
 
 (defconst macroexpand-buffer "*Macroexpand*"
   "The expanded form of an sexp.")
@@ -45,7 +62,7 @@
         (insert "))")
         (eval-buffer nil standard-output))))))
 
-(defun macroexpand-at-point-1 (&optional expand-func)
+(defun elisp-macroexpand-at-point-1 (&optional expand-func)
   (save-excursion
     (let ((cpoint (point))
           (apoint (if (equal (char-to-string (char-after)) "(")
@@ -82,15 +99,15 @@
   "Expand the all macros in the current sexp at point and display
 it in a separate buffer."
   (interactive)
-  (macroexpand-at-point-1 'macroexpand-all))
+  (elisp-macroexpand-at-point-1 'macroexpand-all))
 
 (defun macroexpand-at-point ()
   "Expand the current sexp at point and display it in a separate
 buffer."
   (interactive)
-  (macroexpand-at-point-1))
+  (elisp-macroexpand-at-point-1))
 
-(defun macroexpand-inline-at-point ()
+(defun elisp-slime-expand-inline-at-point ()
   "Expand the current sexp if it's a macro and pretty print it."
   (interactive)
   (setq buffer-read-only nil)
@@ -107,7 +124,7 @@ buffer."
     (goto-char apoint)
     (setq buffer-read-only t)))
 
-(defun macroexpand-again ()
+(defun elisp-slime-expand-macro-again ()
   "Refresh the display of the current macro."
   (interactive)
   (let ((cpoint (point)))
@@ -123,19 +140,23 @@ buffer."
       (setq buffer-read-only t)
       (goto-char cpoint))))
 
+(defvar elisp-slime-expand-minor-mode-map (make-sparse-keymap))
+
+(define-key elisp-slime-expand-minor-mode-map "g" 'elisp-slime-expand-macro-again)
+(define-key elisp-slime-expand-minor-mode-map "\C-c\C-m" 'elisp-slime-expand-inline-at-point)
+(define-key elisp-slime-expand-minor-mode-map "q" 'bury-buffer)
+
 (define-minor-mode elisp-macroexpansion-minor-mode
-  "elisp mode for macroexpansion"
+  "elisp mode for macroexpansion
+
+Commands:
+\\{elisp-slime-expand-minor-mode-map}"
   nil
   " Macroexpand"
-  '(("g" . macroexpand-again)
-    ("\C-c\C-m" . macroexpand-inline-at-point)
+  '(("g" . eslisp-slime-expand-macro-again)
+    ("\C-c\C-m" . eslisp-slime-expand-inline-at-point)
     ("q" . bury-buffer))
   (make-variable-buffer-local 'eval-macroexpand-expression))
-
-(add-hook 'emacs-lisp-mode-hook
-          (lambda ()
-            (define-key emacs-lisp-mode-map "\C-c\C-m" 'macroexpand-at-point)
-            (define-key emacs-lisp-mode-map "\C-c\M-m" 'macroexpand-all-at-point)))
 
 (provide 'elisp-slime-expand)
 ;;; elisp-slime-expand.el ends here
