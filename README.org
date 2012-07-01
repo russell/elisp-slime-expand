@@ -1,0 +1,16 @@
+* elisp-slime-expand
+
+  This minor mode adds similar functionality to the SLIME macroexpand
+  mode.  It's activated using /C-x RET/ and then support further
+  macro expansion in the macro view.  It also does macroexpand-all
+  using /C-x M-m/.
+
+  Once in the macroexpand view /g/ can be used to refresh the macro
+  expansion and /q/ will bury the buffer.
+
+** Installation
+
+   #+BEGIN_SRC elisp
+   (require 'elisp-slime-expand)
+   (add-hook 'emacs-lisp-mode-hook (lambda () (elisp-slime-expand-mode t)))
+   #+END_SRC
