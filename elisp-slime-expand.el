@@ -20,7 +20,7 @@
 
 ;;; Commentary:
 
-;; This mode provides a similar exprience to the SLIME macroexpand
+;; This mode provides a similar experience to the SLIME macroexpand
 ;; functions in `emacs-lisp-mode'.
 
 ;;; Code:
