@@ -132,6 +132,7 @@ buffer."
 (define-key elisp-slime-expand-minor-mode-map "\C-c\C-m" 'elisp-slime-expand-inline-at-point)
 (define-key elisp-slime-expand-minor-mode-map "q" 'bury-buffer)
 
+;;;###autoload
 (define-minor-mode elisp-macroexpansion-minor-mode
   "elisp mode for macroexpansion
 
